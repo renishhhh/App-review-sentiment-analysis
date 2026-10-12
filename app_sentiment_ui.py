@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 
 # Load the trained model and tokenizer
 print("Loading model...")
-model_path = "./app_review_sentiment_bert"
+model_path = "RenishT11/app-review-bert"
 tokenizer = BertTokenizer.from_pretrained(model_path)
 model = BertForSequenceClassification.from_pretrained(model_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
