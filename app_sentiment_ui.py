@@ -27,6 +27,19 @@ model = model.to(device)
 model.eval()
 print(f"Model loaded successfully on {device}!")
 
+def encode(text):
+    """Tokenize a single text (replaces the removed tokenizer.encode_plus)"""
+    return tokenizer(
+        text,
+        add_special_tokens=True,
+        max_length=128,
+        padding="max_length",
+        truncation=True,
+        return_attention_mask=True,
+        return_tensors="pt",
+    )
+
+
 # Sentiment mappings
 SENTIMENT_LABELS = {0: "Negative", 1: "Neutral", 2: "Positive"}
 SENTIMENT_EMOJI = {0: "😞", 1: "😐", 2: "😊"}
@@ -38,15 +51,7 @@ def predict_sentiment(review_text):
     if not review_text or review_text.strip() == "":
         return "Please enter a review to analyze.", ""
 
-    encoding = tokenizer.encode_plus(
-        review_text,
-        add_special_tokens=True,
-        max_length=128,
-        padding="max_length",
-        truncation=True,
-        return_attention_mask=True,
-        return_tensors="pt",
-    )
+    encoding = encode(review_text)
 
     input_ids = encoding["input_ids"].to(device)
     attention_mask = encoding["attention_mask"].to(device)
@@ -88,15 +93,7 @@ def predict_batch(reviews_list):
             predictions.append(1)  # neutral for empty
             continue
 
-        encoding = tokenizer.encode_plus(
-            review_text,
-            add_special_tokens=True,
-            max_length=128,
-            padding="max_length",
-            truncation=True,
-            return_attention_mask=True,
-            return_tensors="pt",
-        )
+        encoding = encode(review_text)
 
         input_ids = encoding["input_ids"].to(device)
         attention_mask = encoding["attention_mask"].to(device)
@@ -207,15 +204,7 @@ def scrape_and_analyze(app_url_or_id, num_reviews=100):
                 confidence_scores.append(0.5)
                 continue
 
-            encoding = tokenizer.encode_plus(
-                review_text,
-                add_special_tokens=True,
-                max_length=128,
-                padding="max_length",
-                truncation=True,
-                return_attention_mask=True,
-                return_tensors="pt",
-            )
+            encoding = encode(review_text)
 
             input_ids = encoding["input_ids"].to(device)
             attention_mask = encoding["attention_mask"].to(device)
@@ -550,7 +539,6 @@ with gr.Blocks(
                         label="📝 Sample Reviews (Preview)",
                         lines=15,
                         interactive=False,
-                        show_copy_button=True,
                     )
                 
                 with gr.Column(scale=1):
